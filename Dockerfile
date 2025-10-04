@@ -7,7 +7,7 @@ USER root
 # ติดตั้งไลบรารี settrade-v2 ได้เลย
 # ใช้ --break-system-packages เพื่อยืนยันการติดตั้งใน system's python environment
 # ซึ่งยอมรับได้ใน context ของ Docker ที่มีการแยกสภาพแวดล้อมชัดเจน
-RUN pip install --break-system-packages settrade-v2
+RUN pip3 install --break-system-packages settrade-v2
 
 # สลับกลับไปใช้ user node ตามเดิมเพื่อความปลอดภัย
 USER node
