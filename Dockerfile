@@ -4,6 +4,10 @@ FROM n8nio/n8n:latest
 # สลับไปใช้ user root ชั่วคราวเพื่อติดตั้ง dependency
 USER root
 
+# ติดตั้ง Python และ pip ผ่าน package manager ของ OS
+# คำสั่งนี้จะทำให้ระบบรู้จักคำสั่ง "pip3"
+RUN apk add --no-cache python3 py3-pip
+
 # ติดตั้งไลบรารี settrade-v2 ได้เลย
 # ใช้ --break-system-packages เพื่อยืนยันการติดตั้งใน system's python environment
 # ซึ่งยอมรับได้ใน context ของ Docker ที่มีการแยกสภาพแวดล้อมชัดเจน
