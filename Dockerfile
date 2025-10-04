@@ -1,22 +1,25 @@
-FROM n8nio/n8n:latest
+# ✅ ใช้ base image ที่เบาและเสถียร
+FROM python:3.11-slim
 
-# เปลี่ยนเป็น root user เพื่อติดตั้ง packages
-USER root
+# ตั้ง working directory ภายใน container
+WORKDIR /app
 
-# ติดตั้ง Python และ pip
-RUN apk add --no-cache python3 py3-pip
+# คัดลอกไฟล์ทั้งหมดจากโปรเจกต์เข้า container
+COPY . .
 
-# อัปเดต pip ก่อนติดตั้ง packages
-RUN pip3 install --upgrade pip
+# ✅ อัปเดตระบบและติดตั้ง tools ที่จำเป็น (เช่น gcc สำหรับ build lib)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# ติดตั้ง packages ทีละตัวเพื่อดู error
-RUN pip3 install settrade-v2
+# ✅ ติดตั้ง dependencies ทั้งหมดจาก requirements.txt ถ้ามี
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
+# ✅ ติดตั้ง settrade-v2 (เพิ่มตรงนี้ถ้ายังไม่อยู่ใน requirements.txt)
+RUN pip install --no-cache-dir settrade-v2
 
-# กลับไปใช้ user n8n
-USER n8n
-
-# ตั้งค่า environment variables
-ENV N8N_BASIC_AUTH_ACTIVE=true
-ENV N8N_BASIC_AUTH_USER=admin
-ENV N8N_BASIC_AUTH_PASSWORD=password
+# ✅ กำหนดคำสั่งเริ่มรันแอป (แก้ตามชื่อไฟล์จริง)
+# ตัวอย่าง: main.py หรือ app.py
+CMD ["python", "main.py"]
