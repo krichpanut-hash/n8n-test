@@ -23,4 +23,18 @@ RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
 # Clean up build dependencies
 RUN apk del .build-deps
 
-USER node
+# กลับไปใช้ user n8n
+USER n8n
+
+# ตั้งค่า environment variables สำหรับ n8n
+ENV N8N_BASIC_AUTH_ACTIVE=true
+ENV N8N_BASIC_AUTH_USER=admin
+ENV N8N_BASIC_AUTH_PASSWORD=password
+ENV N8N_HOST=0.0.0.0
+ENV N8N_PORT=5678
+
+# Expose port
+EXPOSE 5678
+
+# Command สำหรับรัน n8n
+CMD ["n8n", "start"]
