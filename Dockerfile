@@ -1,40 +1,13 @@
-# Dockerfile v4 - แก้ปัญหา externally-managed-environment
+# ใช้ n8n เวอร์ชั่นที่ต้องการเป็น base image
 FROM n8nio/n8n:latest
 
+# สลับไปใช้ user root ชั่วคราวเพื่อติดตั้ง dependency
 USER root
 
-# Install Python and basic runtime dependencies
-RUN apk add --no-cache python3 py3-pip
+# ติดตั้งไลบรารี settrade-v2 ได้เลย
+# ใช้ --break-system-packages เพื่อยืนยันการติดตั้งใน system's python environment
+# ซึ่งยอมรับได้ใน context ของ Docker ที่มีการแยกสภาพแวดล้อมชัดเจน
+RUN pip install --break-system-packages settrade-v2
 
-# Install a wider range of build dependencies as a temporary virtual package
-RUN apk add --no-cache --virtual .build-deps \
-    build-base \
-    python3-dev \
-    gfortran \
-    openblas-dev \
-    lapack-dev \
-    libffi-dev
-
-COPY requirements.txt .
-
-# THE FIX IS HERE: เพิ่ม flag --break-system-packages
-RUN pip install --no-cache-dir --break-system-packages -r requirements.txt
-
-# Clean up build dependencies
-RUN apk del .build-deps
-
-# กลับไปใช้ user n8n
-USER n8n
-
-# ตั้งค่า environment variables สำหรับ n8n
-ENV N8N_BASIC_AUTH_ACTIVE=true
-ENV N8N_BASIC_AUTH_USER=admin
-ENV N8N_BASIC_AUTH_PASSWORD=password
-ENV N8N_HOST=0.0.0.0
-ENV N8N_PORT=5678
-
-# Expose port
-EXPOSE 5678
-
-# Command สำหรับรัน n8n
-CMD ["n8n", "start"]
+# สลับกลับไปใช้ user node ตามเดิมเพื่อความปลอดภัย
+USER node
