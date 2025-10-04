@@ -1,25 +1,27 @@
-# 1. Start from the official n8n image
+# Dockerfile v3 - เพิ่ม Dependencies สำหรับ Data Science packages
 FROM n8nio/n8n:latest
 
-# 2. Switch to root user to install packages
 USER root
 
-# 3. Install Python and pip (runtime dependencies)
+# Install Python and basic runtime dependencies
 RUN apk add --no-cache python3 py3-pip
 
-# 4. Install build tools as a temporary package. THIS IS THE FIX.
-#    - build-base: Contains compilers like gcc.
-#    - python3-dev: Contains header files for compiling Python extensions.
-RUN apk add --no-cache --virtual .build-deps build-base python3-dev
+# Install a wider range of build dependencies as a temporary virtual package
+# ADDED: gfortran, openblas-dev, lapack-dev, libffi-dev (มักจำเป็นสำหรับ numpy, scipy)
+RUN apk add --no-cache --virtual .build-deps \
+    build-base \
+    python3-dev \
+    gfortran \
+    openblas-dev \
+    lapack-dev \
+    libffi-dev
 
-# 5. Copy your requirements file
 COPY requirements.txt .
 
-# 6. Now, run pip install. It will use the build tools we just installed.
+# Run pip install
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 7. Clean up by removing the temporary build tools to keep the final image small
+# Clean up build dependencies
 RUN apk del .build-deps
 
-# 8. Switch back to the non-root 'node' user for security
 USER node
