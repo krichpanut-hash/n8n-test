@@ -6,8 +6,12 @@ USER root
 # ติดตั้ง Python และ pip
 RUN apk add --no-cache python3 py3-pip
 
-# ติดตั้ง Python packages ที่ต้องการ
+# อัปเดต pip ก่อนติดตั้ง packages
+RUN pip3 install --upgrade pip
+
+# ติดตั้ง packages ทีละตัวเพื่อดู error
 RUN pip3 install settrade-v2
+
 
 # กลับไปใช้ user n8n
 USER n8n
